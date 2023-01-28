@@ -1,0 +1,18 @@
+version: '3'
+
+networks:
+  authentication-proxy:
+    driver: bridge
+
+services:
+
+  authentication-template-db:
+    image: 'library/postgres:latest'
+    container_name: authentication-template-db
+    env_file:
+      - database.env
+    restart: always
+    networks:
+      - authentication-proxy
+    ports:
+      - 5432:5432
