@@ -6,14 +6,17 @@ import (
 	"go-authentication-template/configs"
 	"go-authentication-template/handler"
 	"go-authentication-template/route"
+	"go-authentication-template/service"
 	"log"
-	"net/http"
+	"os"
 )
 
 var (
 	server              *gin.Engine
 	UserController      handler.UserHandler
 	UserRouteController route.UserRouteHandler
+	AuthController      handler.AuthHandler
+	AuthRouteController route.AuthRouteHandler
 )
 
 func main() {
@@ -22,12 +25,23 @@ func main() {
 		panic("Could not initialize app")
 	}
 
+	err = os.Setenv("JWT_SECRET", config.JwtSecret)
+	if err != nil {
+		panic("Could not initialize app")
+		return
+	}
+
 	// connect to database
 	configs.ConnectToDB(&config)
 
-	// initialize controllers
-	UserController = handler.NewUserHandler(configs.DB)
+	// initialize services
+	authService := service.NewAuthService(&config)
+
+	// initialize controllers and routes
+	UserController = handler.NewUserHandler(configs.DB, authService)
 	UserRouteController = route.NewUserRouteHandler(UserController)
+	AuthController = handler.NewAuthHandler(configs.DB, authService)
+	AuthRouteController = route.NewAuthHandler(AuthController)
 
 	server = gin.Default()
 
@@ -38,11 +52,8 @@ func main() {
 	server.Use(cors.New(corsConfig))
 
 	router := server.Group("/api")
-	router.GET("/healthchecker", func(ctx *gin.Context) {
-		message := "Welcome to Golang with Gorm and Postgres"
-		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": message})
-	})
-
 	UserRouteController.UserRoute(router)
+	AuthRouteController.AuthRoute(router)
+
 	log.Fatal(server.Run(":" + config.ServerPort))
 }
