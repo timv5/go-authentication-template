@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-authentication-template/configs"
 	"go-authentication-template/handler"
+	"go-authentication-template/repository"
 	"go-authentication-template/route"
 	"go-authentication-template/service"
 	"log"
@@ -34,13 +35,18 @@ func main() {
 	// connect to database
 	configs.ConnectToDB(&config)
 
+	// initialize repository
+	userRepository := repository.NewUserRepository(configs.DB)
+	emailTemplateRepository := repository.NewEmailTemplateRepository(configs.DB)
+	userEmailRepository := repository.NewUserEmailTemplateRepository(configs.DB)
+
 	// initialize services
 	authService := service.NewAuthService(&config)
 
 	// initialize controllers and routes
 	UserController = handler.NewUserHandler(configs.DB, authService)
 	UserRouteController = route.NewUserRouteHandler(UserController)
-	AuthController = handler.NewAuthHandler(configs.DB, authService)
+	AuthController = handler.NewAuthHandler(configs.DB, authService, userRepository, emailTemplateRepository, userEmailRepository, &config)
 	AuthRouteController = route.NewAuthHandler(AuthController)
 
 	server = gin.Default()

@@ -13,6 +13,12 @@ type Config struct {
 	ClientOrigin  string `mapstructure:"CLIENT_ORIGIN"`
 	JwtSecret     string `mapstructure:"JWT_SECRET"`
 	JwtExpiration int    `mapstructure:"JWT_EXPIRATION"`
+
+	EmailFrom string `mapstructure:"EMAIL_FROM"`
+	SMTPHost  string `mapstructure:"SMTP_HOST"`
+	SMTPPass  string `mapstructure:"SMTP_PASS"`
+	SMTPPort  int    `mapstructure:"SMTP_PORT"`
+	SMTPUser  string `mapstructure:"SMTP_USER"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

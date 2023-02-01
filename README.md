@@ -1,5 +1,6 @@
 # go-authentication-template
 Authentication service written in Golang connecting to Postgres database. Includes login, register and 2 example protected routes.
+After a successful registration email is sent to a user.
 
 ## Used technology and prerequisites
 - Golang
